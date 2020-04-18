@@ -49,7 +49,7 @@ def show_route_from_gps(file_path):
 				#print(gps_count,latitude,longitude,gps_speed,gps_track)
 				gps_points.append([latitude,longitude])
 	#################################################
-	# create map
+	# create map process
 	#################################################
 	#print(gps_points)
 	map = folium.Map(location=[gps_points[0][0],gps_points[0][1]], zoom_start=20)
@@ -71,4 +71,5 @@ def show_route_from_gps(file_path):
 		icon=folium.Icon(color='red',icon='info-sign')
 		).add_to(map)
 	gps_points = []
-	map.save("./route.html")
+	output = "./" + file_path.rstrip(".log") + "_route.html"
+	map.save(output)
