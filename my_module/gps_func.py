@@ -27,7 +27,7 @@ lf.row_
 ###########################################
 #ログデータから緯度，経度(同一データ無し)のみを取り出して経路をhtmlで出力
 ###########################################
-def show_route_from_gps(file_path):
+def show_route_from_gps(args):
     #if start gps fix fix_flag turns 1
     fix_flag = 0
     previous_gps_count = -1
@@ -35,6 +35,7 @@ def show_route_from_gps(file_path):
     gps_points = []
     gps_counts = []
     #process for log file
+    file_path = args.file_path
     logfile = open(file_path, 'r')
     for line in logfile:
         line_spt = line.split()
@@ -96,7 +97,7 @@ def show_route_from_gps(file_path):
 ###########################################
 #右折，左折を検出したい########################
 ###########################################
-def detect_turn_from_gps(file_path):
+def detect_turn_from_gps(args):
     #if start gps fix fix_flag turns 1
     fix_flag = 0
     #合計走行距離
@@ -112,6 +113,7 @@ def detect_turn_from_gps(file_path):
     track_array = np.array([])
     receive_time_array = np.array([])
     #process for log file
+    file_path = args.file_path
     logfile = open(file_path, 'r')
     for line in logfile:
         line_spt = line.split()
