@@ -4,3 +4,5 @@ my_module/__pycache__
 *.html
 .DS_Store
 .ipynb_checkpoints
+*.ipynb
+*.pyc

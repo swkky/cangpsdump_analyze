@@ -12,7 +12,8 @@ row_
 [8] = gps_speed, [9] = track,
 [10] = climb, [11] = gps_fix_time_num
 """
-row_can_receive_time = 1
+row_can_receive_time = 0
+row_can_interface = 1
 row_buf = 2
 row_gps_fix_time = 3
 row_gps_mode = 4
