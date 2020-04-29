@@ -27,7 +27,7 @@ def main(command_line=None):
     if args.command == 'show_route':
         myGPSfunc.show_route_from_gps(args)
     if args.command == 'detect_turn':
-        myGPSfunc.detect_turn_from_gps(args.file_path)
+        myGPSfunc.detect_turn_from_gps(args)
 
 if __name__ == '__main__':
     main()
