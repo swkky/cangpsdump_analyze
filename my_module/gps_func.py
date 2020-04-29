@@ -10,8 +10,6 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 
-plot_start = 235
-plot_end = 242
 #low example
 #1586323807.137337 can0 180#0314BF1C0D1BED00 1586323806.312156 3 34.706861 135.706305 0 14.569000 169.199300 -0.194000 4
 """
@@ -154,79 +152,103 @@ def detect_turn_from_gps(args):
                     #datetime型の時刻部分のみに(.time)
                     #receive_datetime = datetime.datetime.time(receive_datetime)
                     receive_time_array = np.append(receive_time_array,receive_datetime)
-                    print(len(gps_speeds))
-                    print("dist  :",distance)
-                    print("time  :",time_diff)
-                    print("speed:",speed_m_sec,"[m/sec]",'\n')
+                    if args.debug:
+                        print(len(gps_speeds))
+                        print("dist  :",distance)
+                        print("time  :",time_diff)
+                        print("speed:",speed_m_sec,"[m/sec]",'\n')
     print(file_path)
     print("直線距離",cal_distance(gps_points[0][0],gps_points[0][1],gps_points[len(gps_points)-1][0],gps_points[len(gps_points)-1][1]),"[km]")
     print("走行距離",mileage,"[km]")
     print((receive_time_array[len(receive_time_array)-1] - receive_time_array[0]).seconds)
     print("Fix Hz",(gps_count - 4) / (receive_time_array[len(receive_time_array)-1] - receive_time_array[0]).seconds,"[Hz]",'\n')
-    #################################################
-    # create speed(2 type) and track graph
-    #################################################
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    ln1=ax1.plot(receive_time_array[plot_start:plot_end],speed_array[plot_start:plot_end],'C0',label=r'speed',marker="o")
+    
+    if args.range is not None:
+        plot_start = args.range[0]
+        plot_end = args.range[1]
+        #################################################
+        # create speed(2 type) and track graph
+        #################################################
+        fig = plt.figure()
+        ax1 = fig.add_subplot(111)
+        ln1=ax1.plot(receive_time_array[plot_start:plot_end],speed_array[plot_start:plot_end],'C0',label=r'speed',marker="o")
 
-    ax2 = ax1.twinx()
-    ln2=ax2.plot(receive_time_array[plot_start:plot_end],track_array[plot_start:plot_end],'C1',label=r'track',marker="o")
+        ax2 = ax1.twinx()
+        ln2=ax2.plot(receive_time_array[plot_start:plot_end],track_array[plot_start:plot_end],'C1',label=r'track',marker="o")
 
-    h1, l1 = ax1.get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    ax1.legend(h1+h2, l1+l2, loc='upper right')
+        h1, l1 = ax1.get_legend_handles_labels()
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax1.legend(h1+h2, l1+l2, loc='upper right')
 
-    ax1.set_xlabel('time')
-    ax1.set_ylabel(r'speed[m/sec]')
-    ax2.set_ylabel(r'track[degree]')
-    ax2.set_yticks([0,90,180,270,360])
-    ax2.grid(True)
-    plt.show()
-    ######################################################
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    ln1=ax1.plot(receive_time_array[plot_start:plot_end],gps_speeds[plot_start:plot_end],'C0',label=r'speed',marker="o")
+        ax1.set_xlabel('time')
+        ax1.set_ylabel(r'speed[m/sec]')
+        ax2.set_ylabel(r'track[degree]')
+        ax2.set_yticks([0,90,180,270,360])
+        ax2.grid(True)
+        plt.show()
+        ######################################################
+        fig = plt.figure()
+        ax1 = fig.add_subplot(111)
+        ln1=ax1.plot(receive_time_array[plot_start:plot_end],gps_speeds[plot_start:plot_end],'C0',label=r'speed',marker="o")
 
-    ax2 = ax1.twinx()
-    ln2=ax2.plot(receive_time_array[plot_start:plot_end],track_array[plot_start:plot_end],'C1',label=r'track',marker="o")
+        ax2 = ax1.twinx()
+        ln2=ax2.plot(receive_time_array[plot_start:plot_end],track_array[plot_start:plot_end],'C1',label=r'track',marker="o")
 
-    h1, l1 = ax1.get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    ax1.legend(h1+h2, l1+l2, loc='upper right')
+        h1, l1 = ax1.get_legend_handles_labels()
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax1.legend(h1+h2, l1+l2, loc='upper right')
 
-    ax1.set_xlabel('time')
-    ax1.set_ylabel(r'speed from GPS[m/sec]')
-    ax1.grid(True)
-    ax2.set_ylabel(r'track[degree]')
-    ax2.set_ylim([0,360])
-    plt.show()
+        ax1.set_xlabel('time')
+        ax1.set_ylabel(r'speed from GPS[m/sec]')
+        ax1.grid(True)
+        ax2.set_ylabel(r'track[degree]')
+        ax2.set_ylim([0,360])
+        plt.show()
     #################################################
     # create map process
     #################################################
-    #print(gps_points)
-    map = folium.Map(location=[gps_points[0][0],gps_points[0][1]], zoom_start=20)
+    #print(only_latlong)
+    map = folium.Map(location=[only_latlong[0][0],only_latlong[0][1]], zoom_start=20)
     # add map tiling options
     folium.TileLayer('Mapbox Bright').add_to(map)
     folium.TileLayer('cartodbdark_matter').add_to(map)
     folium.TileLayer('openstreetmap').add_to(map)
     folium.LayerControl().add_to(map)
-    #経路をプロット
-    folium.PolyLine(locations = only_latlong[plot_start:plot_end]).add_to(map)
-    #create Icon of start(blue) and end(red)
-    folium.Marker(
-        location= (gps_points[plot_start][0],gps_points[plot_start][1]),
-        popup = plot_start,
-        icon=folium.Icon(color='blue',icon='info-sign')
-        ).add_to(map)
-    folium.Marker(
-        location = (gps_points[plot_end][0],gps_points[plot_end][1]),
-        popup = plot_end,
-        icon=folium.Icon(color='red',icon='info-sign')
-        ).add_to(map)
-    gps_points = []
-    output = "./" + file_path.rstrip(".log") + "_" + str(plot_start) + "_" + str(plot_end) + "_plot.html"
-    map.save(output)
+    #指定された範囲の経路をhtmlで出力
+    if args.range is not None:
+        folium.PolyLine(locations = only_latlong[plot_start:plot_end]).add_to(map)
+        #create Icon of start(blue) and end(red)
+        folium.Marker(
+            location= (only_latlong[plot_start][0],only_latlong[plot_start][1]),
+            popup = plot_start,
+            icon=folium.Icon(color='blue',icon='info-sign')
+            ).add_to(map)
+        folium.Marker(
+            location = (only_latlong[plot_end][0],only_latlong[plot_end][1]),
+            popup = plot_end,
+            icon=folium.Icon(color='red',icon='info-sign')
+            ).add_to(map)
+        only_latlong = []
+        output = "./" + file_path.rstrip(".log") + "_" + str(plot_start) + "_" + str(plot_end) + "_plot.html"
+        map.save(output)
+    #全ての経路をhtmlファイルで出力
+    else:
+        folium.PolyLine(locations = only_latlong).add_to(map)
+        #create Icon of start(blue) and end(red)
+        folium.Marker(
+            location= (only_latlong[0][0],only_latlong[0][1]),
+            popup = 'start',
+            icon=folium.Icon(color='blue',icon='info-sign')
+            ).add_to(map)
+        folium.Marker(
+            location = (only_latlong[len(only_latlong)-1][0],only_latlong[len(only_latlong)-1][1]),
+            popup = 'end',
+            icon=folium.Icon(color='red',icon='info-sign')
+            ).add_to(map)
+        only_latlong = []
+        output = "./" + file_path.rstrip(".log") + "_plot_all.html"
+        map.save(output)
+
 
 
 #２地点(a,b)の緯度経度情報から距離を計算する（km）
